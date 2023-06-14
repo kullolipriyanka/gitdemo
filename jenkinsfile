@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('git pull from SCM') {
+            steps {
+                echo 'pulling the code'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'priyanka', url: 'https://github.com/kullolipriyanka/gitdemo.git']])
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('sonar analysis') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('artifact generation') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('deploy') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+    }
+}
