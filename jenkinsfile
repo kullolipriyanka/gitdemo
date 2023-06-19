@@ -2,31 +2,46 @@ pipeline {
     agent any
 
     stages {
-        stage('git pull from SCM') {
+        stage('Sonar Analysis') {
             steps {
-                echo 'pulling the code'
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'priyanka', url: 'https://github.com/kullolipriyanka/gitdemo.git']])
+                echo 'Analysising code....'
+                sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://13.52.135.147:9000" -e SONAR_LOGIN="sqp_ad9e85ee8c16e69b0032c5cb9e408f87d3247c59"  -v ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms'
             }
         }
-        stage('Build') {
+        stage('Build LMS') {
             steps {
-                echo 'Hello World'
+                echo 'Building app....'
+                sh 'cd webapp && npm install && npm run build'
             }
         }
-        stage('sonar analysis') {
+
+        stage('Release LMS') {
             steps {
-                echo 'Hello World'
+                script {
+                    echo "Releasing.."       
+                    def packageJSON = readJSON file: 'webapp/package.json'
+                    def packageJSONVersion = packageJSON.version
+                    echo "${packageJSONVersion}"  
+                    sh "zip webapp/dist-${packageJSONVersion}.zip -r webapp/dist"
+                    sh "curl -v -u admin:lms --upload-file webapp/dist-${packageJSONVersion}.zip http://13.52.135.147:8081/repository/lms/"     
+            }
             }
         }
-        stage('artifact generation') {
+
+        stage('Deploy LMS') {
             steps {
-                echo 'Hello World'
+                script {
+                    echo "Deploying.."       
+                    def packageJSON = readJSON file: 'webapp/package.json'
+                    def packageJSONVersion = packageJSON.version
+                    echo "${packageJSONVersion}"  
+                    sh "curl -u admin:lms -X GET \'http://13.52.135.147:8081/repository/lms/dist-${packageJSONVersion}.zip\' --output dist-'${packageJSONVersion}'.zip"
+                    sh 'sudo rm -rf /var/www/html/*'
+                    sh "sudo unzip -o dist-'${packageJSONVersion}'.zip"
+                    sh "sudo cp -r webapp/dist/* /var/www/html"
+            }
             }
         }
-        stage('deploy') {
-            steps {
-                echo 'Hello World'
-            }
-        }
+        
     }
 }
