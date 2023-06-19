@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Sonar Analysis') {
+        stage('Sonar Analysis1') {
             steps {
                 echo 'Analysising code....'
                 sh 'cd webapp && sudo docker run  --rm -e SONAR_HOST_URL="http://3.27.106.90:9000" -e SONAR_LOGIN="sqp_6807dbac6cd7ef3266f6c4410030c2f86ee8f4af"  -v ".:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=lms'
