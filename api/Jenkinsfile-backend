@@ -6,9 +6,9 @@ pipeline {
 
     environment {
 
-    DOCKERHUB_CREDENTIALS = credentials('dockeruser')
+    DOCKERHUB_CREDENTIALS = credentials('git')
      registry = "mubeen507/backend-lms"
-        registryCredential = 'dockeruser'
+        registryCredential = 'git'
         dockerImage = ''
     }
 
